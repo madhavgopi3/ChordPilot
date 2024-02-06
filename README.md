@@ -16,7 +16,7 @@ Output is an easy-to-read list of chords for each bar, ranked in order of suitab
 
 ### Piano Roll and MML 
 
-Piano roll is implemented using [webaudio-pianoroll]([https://github.com/g200kg/webaudio-pianoroll). webaudio-pianoroll is a GUI library for displaying piano rolls used in music applications. 
+Piano roll is implemented using [webaudio-pianoroll](https://github.com/g200kg/webaudio-pianoroll). webaudio-pianoroll is a GUI library for displaying piano rolls used in music applications. 
 The output from this pianoroll is by default stored in the form of Music Macro Language (MML). MML is a method of transcribing musical notation as sequence data, which then gets processed into binary performance data, akin to MIDI, for a computer to playback.
 
 MML can be decoded in the following way:
