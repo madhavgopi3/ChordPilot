@@ -6,6 +6,7 @@
 2. [Implementation](#Implementation)
 3. [Piano Roll and MML](#Piano-Roll-and-MML)
 4. [The Harmonizer](#The-Harmonizer)
+5. [Styling and Output](#Styling-and-Output)
 
 
 ## Introduction
