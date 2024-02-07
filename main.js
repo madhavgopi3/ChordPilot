@@ -164,8 +164,6 @@ function parseNotes()
     notename[i] = notesarray[i].replace(/-/g, 'b'); // changing - to flat sign
     notename[i] = notename[i].match(/(\wb)|[a-z]/g); //extracting the note name
     //notename[i] = notename[i]+octave; //adding octave info for EasyScore sheet notation
-    //need to take care of octaves and rests
-    //flat notes 8th note bug
   }
   return notename;
 }
