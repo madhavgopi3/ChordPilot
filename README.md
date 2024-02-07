@@ -1,6 +1,14 @@
 # ChordPilot
 
+## Contents
+
+[Introduction](#Introduction)
 [Implementation](#Implementation)
+[Piano Roll and MML](#Piano-Roll-and-MML)
+[The Harmonizer](#The-Harmonizer)
+
+
+## Introduction
 
 ChordPilot is a tool that suggests possible chords for each bar when a melody is provided. It lets the user input a melody and displays the corresponding chords for each bar, with the suggestions dynamically changing based on the user's choices.
 
