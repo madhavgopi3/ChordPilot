@@ -175,8 +175,8 @@ export const ChordType = Object.freeze({
 	dom7s5:     { notes : Note.notesFactory([0,4,8,10]),   symbol: '+7'        },
 
 	m7:         { notes : Note.notesFactory([0,3,7,10]),   symbol: '-7'        },
-	mMaj7:      { notes : Note.notesFactory([0,4,7,11]),   symbol: '-\u0394'   },
-	m6:         { notes : Note.notesFactory([0,4,6,9]),    symbol: '-6'        },
+	mMaj7:      { notes : Note.notesFactory([0,3,7,11]),   symbol: '-\u0394'   },
+	m6:         { notes : Note.notesFactory([0,3,6,9]),    symbol: '-6'        },
 
 	m7b5:       { notes : Note.notesFactory([0,3,6,10]),   symbol: 'ø'    },  //\u03C6 is unicode for phi
 	dim7:       { notes : Note.notesFactory([0,3,6,9]),    symbol: '\u00B07'  }    //\u00B0 is unicode for small circle
