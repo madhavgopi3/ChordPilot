@@ -1,10 +1,10 @@
-# Harmony Helper
+# Melody Harmoniser
 
-Harmony Helper is a tool that suggests possible chords for each bar when a melody is provided. It lets the user input a melody and displays the corresponding chords for each bar, with the suggestions dynamically changing based on the user's choices.
+Melody Harmoniser is a tool that suggests possible chords for each bar when a melody is provided. It lets the user input a melody and displays the corresponding chords for each bar, with the suggestions dynamically changing based on the user's choices.
 
 This enables both advanced and amateur musicians to explore the magic of chords, by inputting any melody of their liking, with an easy to navigate user interface. The only pre-requisite is the knowledge to draw notes on a pianoroll, which is the easiest form of music input.
 
-It is important to mention that the purpose of this tool is not to simply harmonize a melody on its own. The main use for this tool is to add some suggestions that the user might come across. In other words, the user is expected to at least have a very broad idea of how they want to harmonise the melody. This tool will just give the user some new ideas.
+While the tool is capable of harmonising a melody on its own, the main use for this tool is to add some more suggestions that the user might be interested in. In other words, the user can get different possibilities on how they want to harmonise the melody. The goal is to give the user the flexibility to choose from multiple chord options with real-time playback to test them out.
 
 ## Implementation
 
@@ -20,7 +20,7 @@ The output is an easy-to-read list of chords for each bar, ranked in order of su
 
 ### Piano Roll and MML 
 
-The piano roll is implemented using [webaudio-pianoroll]([https://github.com/g200kg/webaudio-pianoroll), which is a GUI library for displaying piano rolls used in music applications. 
+The piano roll is implemented using [webaudio-pianoroll](https://github.com/g200kg/webaudio-pianoroll), which is a GUI library for displaying piano rolls used in music applications. 
 The output from this pianoroll is by default stored in the form of Music Macro Language (MML). MML is a method of transcribing musical notation as sequence data, which then gets processed into binary performance data, akin to MIDI, for a computer to playback.
 
 MML can be decoded in the following way:
@@ -60,6 +60,8 @@ Using conditional statements and regulax expressions such as slice, match and re
 * Rests
 * Durations of notes/rests
 * Octave
+
+These informations can be viewed in the browser console, once the "Generate Chords" button is clicked.
 
 The notes and octaves are then converted into an integer using the formula 
 
@@ -177,9 +179,13 @@ For example a Cmaj7 chord will be played as: C2 G3 E4 B4
 
 This creates generic open voicings that allow thirds and sevenths to resolve nicely when subsequent chords are a fifth or a semitone apart. These voicings are played with a sine tone, while the melody is played with a triangle wave shape at a louder volume. This is to enable the user to hear the chords separately from the melody.
 
-## The Output
+## Styling and Output
 
-The output is displayed using a canvas. The canvas is drawn using a 2D array of strings. The cell width and height are calculated by dividing the total width and height by the number of columns and the number of cells in the longest column. The harmonizer object stores the indices of the chosen chords, so the corresponding cells could be colored differently. When the user clicks anywhere in the canvas, an function is triggered that find out which cell was clicked using the x and y coordinates of the canvas origin and the click event. The appropriate functions are then called to re calculate the chord scores and redraw the canvas to update the output.
+The goal was to design a no-frills, sleek and minimalist interface, which is easy to navigate from the top to the bottom. In case the user wishes to test the functionality of the project before inputting their own melody, a dropdown is provided with 3 preset songs "Hey Jude", "Never Gonna Give You Up" and "Every Breath You Take". 
+
+The dropdowns, buttons, the pianoroll, output chords' display have been modified to be responsive and cohesive with the design principle. The buttons are styled using the "before" pseudo element and the "hover" style to indicate interactivity, which basically overlays a circular animation over the button when the cursor is hovered over it.
+
+The chord output is displayed using a canvas. The canvas is drawn using a 2D array of strings. The cell width and height are calculated by dividing the total width and height by the number of columns and the number of cells in the longest column. The harmonizer object stores the indices of the chosen chords, so the corresponding cells could be colored differently. When the user clicks anywhere in the canvas, an function is triggered that find out which cell was clicked using the x and y coordinates of the canvas origin and the click event. The appropriate functions are then called to re-calculate the chord scores and redraw the canvas to update the output.
 
 
 
