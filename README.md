@@ -6,6 +6,8 @@ This enables both advanced and amateur musicians to explore the magic of chords,
 
 While the tool is capable of harmonising a melody on its own, the main use for this tool is to add some more suggestions that the user might be interested in. In other words, the user can get different possibilities on how they want to harmonise the melody. The goal is to give the user the flexibility to choose from multiple chord options with real-time playback to test them out.
 
+Watch the demo [here](https://youtu.be/aiTrYkY2TBU)
+
 ## Implementation
 
 Inputs from the user are:
