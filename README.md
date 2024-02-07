@@ -179,7 +179,7 @@ This creates generic open voicings that allow thirds and sevenths to resolve nic
 
 ## The Output
 
-The output is displayed using a canvas. The canvas is drawn using a 2D array of strings. The cell width and height are calculated by dividing the total width and height by the number of columns and the number of cells in the longest column. The harmonizer object stores the indices of the chosen chords, so the corresponding cells could be colored differently. When the user clicks anywhere in the canvas, an function is triggered that find out which cell was clicked using the x and y coordinates of the canvas origin and the click event. The appropriate functions are then called to re calculate the chord scores and redraw the canvas to update the ouput.
+The output is displayed using a canvas. The canvas is drawn using a 2D array of strings. The cell width and height are calculated by dividing the total width and height by the number of columns and the number of cells in the longest column. The harmonizer object stores the indices of the chosen chords, so the corresponding cells could be colored differently. When the user clicks anywhere in the canvas, an function is triggered that find out which cell was clicked using the x and y coordinates of the canvas origin and the click event. The appropriate functions are then called to re calculate the chord scores and redraw the canvas to update the output.
 
 
 
