@@ -7,7 +7,7 @@ It is meant to describe a certain functional chord like Imaj7, IIm7 etc.
 The key is assumed to start at the note value 0. Transposition will be done to everything to interface with this class.
 
 for example to describe Imaj7 one would code it as
-var my_chord = new Chord(0,ChordType.Maj7,[Scale.ionian])
+let my_chord = new Chord(0,ChordType.Maj7,[Scale.ionian])
 
 */
 
@@ -108,7 +108,7 @@ export default class Chord {
     }
 
     resolvesTo(chord){
-        if(! this.isDominant()) { // for now only dominant chords resolve. later we can change this
+        if(! this.isDominant()) { // for now only dominant chords resolve
             return false; 
         }
         else if(Object.values(SubstituteDominants).includes(this)) {
@@ -116,40 +116,16 @@ export default class Chord {
         }
     }
 
-    //checks if a chord "allows" a set of notes by comparing the notes against the allowed scales
-    allows(notes, allowAvoid = false) {
-        let allowed = false;
-    
-        
-        let transposedNotes = notes.map(note => note.getTransposed(Chord.key + this.#root.value,false));
-        
-        this.#scales.forEach(scale => {
-            if (scale && scale.chord) {
-                let allNotesAllowed = transposedNotes.every(note => {
-                    let chordMatch = scale.chord.some(chordNote => chordNote.value === note.value);
-                    let tensionMatch = scale.tension.some(tensionNote => tensionNote.value === note.value);
-                    let avoidMatch = scale.avoid.some(avoidNote => avoidNote.value === note.value);   //it's okay to use avoid notes sometimes
-                    return chordMatch || tensionMatch || (avoidMatch && allowAvoid);
-                });
-    
-                if (allNotesAllowed) {
-                    allowed = true;
-                }
-            }
-        });
-    
-        return allowed;
-    }
     
     isIChord(){
-        return [DiatonicChords.Imaj7 /* add I- chords */ ].includes(this);
+        return [DiatonicChords.Imaj7 /* add other I chords here */ ].includes(this);
     }
 
 
     calculateChordScore(melodyNotes, noteDurations,bonus = 0,lastBar = false) {
         
-        bonus += (Object.values(DiatonicChords).includes(this)?1:0) + (lastBar && this.isIChord()?1:0);
-        bonus *= 4;
+        bonus += (Object.values(DiatonicChords).includes(this)?0.5:0) + (lastBar && this.isIChord()?2:0);
+        bonus *= 2;
         const scales = this.scales; 
         let transposedMelody = melodyNotes.map(note => note.getTransposed(Chord.key.value + this.#root.value,false));
 
@@ -174,17 +150,12 @@ export default class Chord {
             // Weight the score by the duration of the melody note
             totalWeightedScore += noteScore * noteDurations[index];
         });
-        let myScore =parseFloat(((totalWeightedScore + bonus)/ (totalDuration + bonus)).toFixed(3));
+        let myScore =parseFloat(( (totalWeightedScore + bonus) / (totalDuration + bonus) ).toFixed(3));
         
         // Calculate the final score for the chord
         return myScore;
     }
-    
-    
-    
-    
 
-    
     toString(){
         let actualRoot = this.#root.getTransposed(Chord.key,true);
         return actualRoot.toString() + this.#symbol;
@@ -196,8 +167,8 @@ export default class Chord {
 export const ChordType = Object.freeze({
 	Maj7:       { notes : Note.notesFactory([0,4,7,11]),   symbol: '\u0394'    },  //'\u0394' is unicode for delta
 	Maj6:       { notes : Note.notesFactory([0,4,7,9]),    symbol: '6'         },
-	Maj7s5:     { notes : Note.notesFactory([0,4,8,11]),   symbol: '\u0394#5'  },
-	Maj7b5:     { notes : Note.notesFactory([0,4,6,11]),   symbol: '\u0394b5'  },
+	Maj7s5:     { notes : Note.notesFactory([0,4,8,11]),   symbol: '\u0394♯5'  },
+	Maj7b5:     { notes : Note.notesFactory([0,4,6,11]),   symbol: '\u0394♭5'  },
 
 	dom7:       { notes : Note.notesFactory([0,4,7,10]),   symbol: '7'         },
 	dom7sus4:   { notes : Note.notesFactory([0,5,7,10]),   symbol: '7sus4'     },
@@ -207,11 +178,11 @@ export const ChordType = Object.freeze({
 	mMaj7:      { notes : Note.notesFactory([0,4,7,11]),   symbol: '-\u0394'   },
 	m6:         { notes : Note.notesFactory([0,4,6,9]),    symbol: '-6'        },
 
-	m7b5:       { notes : Note.notesFactory([0,3,6,10]),   symbol: '\u03C6'    },  //\u03C6 is unicode for phi
+	m7b5:       { notes : Note.notesFactory([0,3,6,10]),   symbol: 'ø'    },  //\u03C6 is unicode for phi
 	dim7:       { notes : Note.notesFactory([0,3,6,9]),    symbol: '\u00B07'  }    //\u00B0 is unicode for small circle
 });
 
-//Define scales but split each scale into 3 lists (chord tones, tension notes, avoid notes) 
+//Define scales, split each scale into 3 lists (chord tones, tension notes, avoid notes) 
 export const Scale = Object.freeze({
     //Major scale modes
     ionian:     { chord: ChordType.Maj7.notes,    tension: Note.notesFactory([2,9]),     avoid: Note.notesFactory([5])  },
@@ -234,15 +205,21 @@ export const Scale = Object.freeze({
     halfWhole:  { chord: ChordType.dom7.notes,    tension: Note.notesFactory([1,3,6,9]), avoid: Note.notesFactory([])   },	//b9,#9,#11,13
     altered:    { chord: ChordType.dom7.notes,    tension: Note.notesFactory([1,3,6,8]), avoid: Note.notesFactory([])   },	//b9,#9,#11,b13
 
-    //melodic minor modes: to be completed
-    mel_minor:  {chord: ChordType.mMaj7.notes,    tension: Note.notesFactory([2,5,9]),   avoid: Note.notesFactory([])   }
-
+    //melodic minor modes
+    mel_minor:  {chord: ChordType.mMaj7.notes,      tension: Note.notesFactory([2,5,9]),    avoid: Note.notesFactory([])    },
+    dorianb2:   {chord: ChordType.m7.notes,         tension: Note.notesFactory([5]),        avoid: Note.notesFactory([2])   },
+    sus4b9 :   {chord: ChordType.dom7sus4.notes,   tension: Note.notesFactory([1,5,9]),    avoid: Note.notesFactory([])    },
+    lydian_aug: {chord: ChordType.Maj7s5.notes,     tension: Note.notesFactory([2,6]),    avoid: Note.notesFactory([9])    },
+    // lydian b7
+    // mixo b6 (b13)
+    locrian_n9: { chord: ChordType.m7b5.notes,      tension: Note.notesFactory([2,5]),      avoid: Note.notesFactory([8])},
+    suplocrian: { chord: ChordType.m7b5.notes,      tension: Note.notesFactory([4]),        avoid: Note.notesFactory([1,8])}
 });
 
 // Major scale diatonic chords
 export const DiatonicChords = Object.freeze({
     Imaj7 :     new Chord(0,ChordType.Maj7,[Scale.ionian]),
-    IIm7 :      new Chord(2,ChordType.m7,[Scale.dorian_m7]),
+    IIm7 :      new Chord(2,ChordType.m7,[Scale.dorian_m7,Scale.dorianb2]),
     IIIm7 :     new Chord(4,ChordType.m7,[Scale.phrygian]),
     IVMaj7 :    new Chord(5,ChordType.Maj7,[Scale.lydian]),
     V7_I :      new Chord(7,ChordType.dom7,[Scale.mixo,Scale.mixob9,Scale.mixob13,Scale.mixob9b13,Scale.wholeTone,Scale.lydianb7,Scale.halfWhole,Scale.altered]),
@@ -284,15 +261,29 @@ export const Relatedm7OfSubstituteDominants = Object.freeze({
     subIIm7_VI :     new Chord(5,ChordType.m7,[Scale.dorian_m7])
 });
 
-/*more lists:
+export const SubdominantMinorChords = Object.freeze({
+    bIImaj7 :     new Chord(1,ChordType.Maj7,[Scale.lydian]),
+    IIm7b5 :    new Chord(2,ChordType.m7b5,[Scale.locrian]),
+    //IVm7 :     new Chord(5,ChordType.m7,[Scale.dorian_m7]), same chord is in related m7 of substitute dominants
+    IVmMaj7 :      new Chord(5,ChordType.mMaj7,[Scale.mel_minor]),
+    bVIMaj7 :     new Chord(8,ChordType.Maj7,[Scale.lydian])
+    //bVII7 :     new Chord(10,ChordType.dom7,[Scale.lydianb7]) same chord is in substitute dominants
+});
 
-Sub-Dominant Minor Chords:
-bIIMaj7,IIm7b5,IVm7,bVIMaj7,bVI7,bVII7
+export const ModalInterchangeChords = Object.freeze({
+    Im7 :     new Chord(0,ChordType.m7,[Scale.dorian_m7]),
+    bIIIMaj7 :    new Chord(3,ChordType.Maj7,[Scale.lydian]),
+    Vm7 :      new Chord(7,ChordType.m7,[Scale.dorian_m7]),
+    VIm7b5 :     new Chord(9,ChordType.m7b5,[Scale.locrian_n9]),
+    //bVII7 :     new Chord(10,ChordType.dom7,[Scale.lydianb7]) same chord is in substitute dominants
+    sIVm7b5 :     new Chord(4,ChordType.m7b5,[Scale.locrian]),
+    bVIIMaj7 :    new Chord(10,ChordType.Maj7,[Scale.lydian])
+});
 
-Diminished chords...
+export const MelodicMinorChords = Object.freeze({
+    ImMaj7 :     new Chord(0,ChordType.mMaj7,[Scale.mel_minor]),
+    IIsus4b9:   new Chord(2,ChordType.dom7sus4,[Scale.sus4b9]),
+    bIIIMaj7s5: new Chord(7,ChordType.Maj7s5,[Scale.lydian_aug])
+    // rest are repeated
+});
 
-Special Function Dominant 7th chords: (Dom7 chords that do not function as Dominant)
-I7,II7,IV7,bVI7,bVII7,bVII7
-
-Modal Interchange chords ...
-*/

@@ -55,20 +55,21 @@ export default class Harmonizer {
         this.chosenChords[barNumber] = this.chords[barNumber][chordIndex];
         this.chosenIndices[barNumber] = chordIndex;
 
+        const nextBar = barNumber+1;
         
-        if(barNumber < this.numOfBars - 1){
-            let [sortedChords,sortedScores] = this.reSort(barNumber+1);
-            this.chords[barNumber + 1] = sortedChords;
-            this.scores[barNumber + 1] = sortedScores;
-            this.chosenIndices[barNumber+1]=-1;
-            this.chosenChords[barNumber+1]=this.chords[barNumber+1][0];
+        if(nextBar < this.numOfBars){
+            let [sortedChords,sortedScores] = this.reSort(nextBar);
+            this.chords[nextBar] = sortedChords;
+            this.scores[nextBar] = sortedScores;
+            this.chosenIndices[nextBar]=-1;
+            this.chosenChords[nextBar]=this.chords[nextBar][0];
         }
     }
     
     getChordStrings(){
         
         const strings = this.chords.map(chordList =>
-            (chordList.map(chord => chord.toString())).slice(0, 5)
+            (chordList.map(chord => chord.toString())).slice(0, 6)
         );
         return strings;
 
@@ -109,14 +110,20 @@ export default class Harmonizer {
         let relatedm7SecondaryDominants =[]; 
         let substituteDominants =[]; 
         let relatedm7SubstituteDominants =[];
-    
+        let subdominantMinorChords = [];
+        let modalInterchangeChords =[];
+        let melodicMinorChords = [];
+
         switch (Chord.complexity) {
             case 4:
                 relatedm7SubstituteDominants = scoreChordsFromEnum(Enums.Relatedm7OfSubstituteDominants, notes, durations);
+                melodicMinorChords = scoreChordsFromEnum(Enums.MelodicMinorChords, notes, durations);
             case 3:
                 substituteDominants = scoreChordsFromEnum(Enums.SubstituteDominants, notes, durations);
+                modalInterchangeChords = scoreChordsFromEnum(Enums.ModalInterchangeChords, notes, durations);
             case 2:
                 relatedm7SecondaryDominants = scoreChordsFromEnum(Enums.Relatedm7OfSecondaryDominants, notes, durations);
+                subdominantMinorChords = scoreChordsFromEnum(Enums.SubdominantMinorChords, notes, durations); 
             case 1:
                 secondaryDominants = scoreChordsFromEnum(Enums.SecondaryDominants, notes, durations);       
             default:
@@ -148,8 +155,8 @@ export default class Harmonizer {
         const melodyNotes = Note.notesFactory(this.melody[barNumber]);
         const noteDurations =this.durations[barNumber];
         const previousChord = this.chosenChords[barNumber-1];
-        const isLastBar = this.numOfBars == barNumber+1;
 
+        const isLastBar = this.numOfBars == barNumber+1;
         const chordScores = chords.map(chord => ({
             chord,
             score: (chord.calculateChordScore(melodyNotes, noteDurations,( (previousChord.isFifthDownFrom(chord)?1:0) +(chord.isFifthDownFrom(previousChord)?1:0) + (previousChord.resolvesTo(chord)?1:0) ),isLastBar) 
@@ -237,7 +244,7 @@ export default class Harmonizer {
     
     // plays chords and melody together
     playChords(){
-        // console.log("playing chords");
+
         Harmonizer.stopPlaying = false;
 
         const beatTime = 60/(this.bpm * 4);
@@ -307,7 +314,6 @@ export default class Harmonizer {
         playLine(thirds,times);
         playLine(fifths,times);
         playLine(sevenths,times);
-    
     }
     stopChords(){
         Harmonizer.stopPlaying = true;
@@ -315,328 +321,3 @@ export default class Harmonizer {
 } 
 
 
-/*  Testing Functions
-
-function testTranspose(){
-    console.log('Transpose Test');
-    let myKey = new Note(4);
-    let values = [0,2,4,7]; //C D E G
-    let notes = Note.notesFactory(values);              // make note objects
-    console.log(notes.map(note => note.toString()));    // C D E G
-    // transpose the notes to key of E
-    notes.forEach(note => {
-        note.transpose(myKey);     
-    });
-    console.log(notes.map(note => note.toString()));    //E F# G# B
-}
-
-function testSplitToBars() {
-    console.log('Test splitting an array of notes into multiple bars');
-
-    // Generate random note values and durations
-    let values = [];
-    let durations = [];
-    const numNotes = 20; // You can adjust this number
-
-    for (let i = 0; i < numNotes; i++) {
-        // Random note values between 0 and 12
-        values.push(Math.floor(Math.random() * 13)-1);
-
-        // Random durations between 1 and 8 (you can adjust this range)
-        durations.push(Math.floor(Math.random() * 50)/10);
-    }
-
-    // Test the splitToBars function
-    const barLength = 4; // You can adjust this value
-    const result = splitToBars(values, durations, barLength);
-    removeRests(result);
-    // Display the original values and durations
-    console.log('Original Values:', values);
-    console.log('Original Durations:', durations);
-
-    // Display the result of splitToBars
-    console.log('Split Values:', result[0]);
-    console.log('Split Durations:', result[1]);
-}
-
-
-
-function testChordOptions(){
-    console.log('Test chord options based on some notes:');
-    // set to the key of E
-    let myKey = new Note(4);
-    Chord.setKey(myKey); 
-    // create array of note values
-    let values = [0,2,4,7]; //c d e g
-    // make note objects
-    let notes = Note.notesFactory(values);
-    // transpose the notes to key of E
-    notes.forEach(note => {
-        note.transpose(myKey,true);     
-    });
-    let chords = recommendChord(notes);
-    console.log(chords)  
-    let durations = [0.5,1,1,0.5];
-    let [sortedChords,scores] = calculateAndSortChords(chords[0],notes,durations);
-    console.log(sortedChords);
-    console.log(scores);
-    
-    
-    let testString = 'Key:' + myKey.toString() + '<br>' + notes + 
-        '<br>Diatonic Chords: ' + chords[0] + 
-        '<br>Secondary Dominant Chords: ' + chords[1] + 
-        '<br>Related minor 7th of Secondary Dominants: ' + chords[2] + 
-        '<br>Substitute Dominants: '+ chords[3] +
-        '<br>Related minor 7th of Substitute Dominants: ' + chords[4];
-
-    document.getElementById("demo").innerHTML = testString;
-}
-
-function testChordScore(){
-    let myKey = new Note(5);
-    Chord.setKey(myKey); 
-    // create array of note values
-    let values = [0,2,4,7]; //c d e g
-    // make note objects
-    let notes = Note.notesFactory(values);
-    // transpose the notes to key of E
-    notes.forEach(note => {
-        note.transpose(myKey);     
-    });
-    let chords = recommendChord(notes);
-    console.log(chords) ;
-    let durations = [0.5,1,1,0.5];
-    let [sortedChords,scores] = calculateAndSortChords(chords.flat(),notes,durations);
-    console.log(sortedChords);
-    console.log(scores);
-
-    let testString = 'Key: ' + myKey.toString() +
-        '<br>Notes: '+ notes.map(note => note.toString()) +
-        '<br>Durations: '+ durations;
-
-    //sortedChords.forEach(entry => '<br>' entry.chord.toString() + ': ' + entry.score);
-    sortedChords.forEach(entry => {
-        testString += '<br>' + entry.chord.toString() + ': ' + Math.round(entry.score * 100) / 100;
-    });
-
-    document.getElementById("demo").innerHTML = testString;
-}
-
-function testResolvedPairs(){
-    Chord.setKey(0);
-    let list1 = [Enums.DiatonicChords.Imaj7,Enums.DiatonicChords.V7_I,Enums.SecondaryDominants.V7_II,Enums.SubstituteDominants.subV7_II];
-    let list2 = [Enums.DiatonicChords.Imaj7,Enums.DiatonicChords.IIm7,Enums.DiatonicChords.IVMaj7,Enums.SubstituteDominants.subV7_IV];
-
-    let resolutions = findResolvingPairs(list1,list2);
-    console.log(resolutions);
-}
-
-
-function testMelodyToChordOptions(){
-    console.log('Testing everything from melody input to chord suggestions and scores');
-    let inputValues =       [-1,60,57, -1, 57, 60, 62,55,-1, 55, 57,58, 65, 65, 64, 60, 62,  60,  58,57]; //hey jude
-    let inputDurations =    [ 3, 1, 2,0.5,0.5,0.5,0.5, 2, 1,0.5,0.5, 1,1.5,0.5,0.5,0.5,0.5,0.25,0.25, 3];
-    let myKey = new Note(5)
-    let barLength = 4;
-    let complexity = 0;
-    Chord.setComplexity(complexity);
-    let [chords,scores] =initChordsFromMelody(inputValues,inputDurations,myKey,barLength);
-    console.log(chords);
-    console.log(scores);
-    let testString = 'Key:' + myKey.toString() + '<br> Hey Jude' +
-        '<br>Complexity:' + complexity +
-        '<br>Bar 0 : ' + chords[0] + 
-        '<br>Bar 1 : ' + chords[1] + 
-        '<br>Bar 2 : ' + chords[2] + 
-        '<br>Bar 3 : ' + chords[3] +
-        '<br>Bar 4 : ' + chords[4];
-
-    document.getElementById("demo").innerHTML = testString;
-}
-
-
-
-
-
-function testTranspose(){
-    console.log('Transpose Test');
-    let myKey = new Note(4);
-    let values = [0,2,4,7]; //C D E G
-    let notes = Note.notesFactory(values);              // make note objects
-    console.log(notes.map(note => note.toString()));    // C D E G
-    // transpose the notes to key of E
-    notes.forEach(note => {
-        note.transpose(myKey);     
-    });
-    console.log(notes.map(note => note.toString()));    //E F# G# B
-}
-
-function testSplitToBars() {
-    console.log('Test splitting an array of notes into multiple bars');
-
-    // Generate random note values and durations
-    let values = [];
-    let durations = [];
-    const numNotes = 20; // You can adjust this number
-
-    for (let i = 0; i < numNotes; i++) {
-        // Random note values between 0 and 12
-        values.push(Math.floor(Math.random() * 13)-1);
-
-        // Random durations between 1 and 8 (you can adjust this range)
-        durations.push(Math.floor(Math.random() * 50)/10);
-    }
-
-    // Test the splitToBars function
-    const barLength = 4; // You can adjust this value
-    const result = splitToBars(values, durations, barLength);
-    removeRests(result);
-    // Display the original values and durations
-    console.log('Original Values:', values);
-    console.log('Original Durations:', durations);
-
-    // Display the result of splitToBars
-    console.log('Split Values:', result[0]);
-    console.log('Split Durations:', result[1]);
-}
-
-
-function testChordOptions(){
-    console.log('Test chord options based on some notes:');
-    // set to the key of E
-    let myKey = new Note(4);
-    Chord.setKey(myKey); 
-    // create array of note values
-    let values = [0,2,4,7]; //c d e g
-    // make note objects
-    let notes = Note.notesFactory(values);
-    // transpose the notes to key of E
-    notes.forEach(note => {
-        note.transpose(myKey,true);     
-    });
-    let chords = recommendChord(notes);
-    console.log(chords)  
-    let durations = [0.5,1,1,0.5];
-    let [sortedChords,scores] = calculateAndSortChords(chords[0],notes,durations);
-    console.log(sortedChords);
-    console.log(scores);
-    
-    
-    let testString = 'Key:' + myKey.toString() + '<br>' + notes + 
-        '<br>Diatonic Chords: ' + chords[0] + 
-        '<br>Secondary Dominant Chords: ' + chords[1] + 
-        '<br>Related minor 7th of Secondary Dominants: ' + chords[2] + 
-        '<br>Substitute Dominants: '+ chords[3] +
-        '<br>Related minor 7th of Substitute Dominants: ' + chords[4];
-
-    document.getElementById("demo").innerHTML = testString;
-}
-
-function testChordScore(){
-    let myKey = new Note(5);
-    Chord.setKey(myKey); 
-    // create array of note values
-    let values = [0,2,4,7]; //c d e g
-    // make note objects
-    let notes = Note.notesFactory(values);
-    // transpose the notes to key of E
-    notes.forEach(note => {
-        note.transpose(myKey);     
-    });
-    let chords = recommendChord(notes);
-    console.log(chords) ;
-    let durations = [0.5,1,1,0.5];
-    let [sortedChords,scores] = calculateAndSortChords(chords.flat(),notes,durations);
-    console.log(sortedChords);
-    console.log(scores);
-
-    let testString = 'Key: ' + myKey.toString() +
-        '<br>Notes: '+ notes.map(note => note.toString()) +
-        '<br>Durations: '+ durations;
-
-    //sortedChords.forEach(entry => '<br>' entry.chord.toString() + ': ' + entry.score);
-    sortedChords.forEach(entry => {
-        testString += '<br>' + entry.chord.toString() + ': ' + Math.round(entry.score * 100) / 100;
-    });
-
-    document.getElementById("demo").innerHTML = testString;
-}
-
-function testResolvedPairs(){
-    Chord.setKey(0);
-    let list1 = [Enums.DiatonicChords.Imaj7,Enums.DiatonicChords.V7_I,Enums.SecondaryDominants.V7_II,Enums.SubstituteDominants.subV7_II];
-    let list2 = [Enums.DiatonicChords.Imaj7,Enums.DiatonicChords.IIm7,Enums.DiatonicChords.IVMaj7,Enums.SubstituteDominants.subV7_IV];
-
-    let resolutions = findResolvingPairs(list1,list2);
-    console.log(resolutions);
-}
-
-
-function testMelodyToChordOptions(){
-    console.log('Testing everything from melody input to chord suggestions and scores');
-    let inputValues =       [-1,60,57, -1, 57, 60, 62,55,-1, 55, 57,58, 65, 65, 64, 60, 62,  60,  58,57]; //hey jude
-    let inputDurations =    [ 3, 1, 2,0.5,0.5,0.5,0.5, 2, 1,0.5,0.5, 1,1.5,0.5,0.5,0.5,0.5,0.25,0.25, 3];
-    let myKey = new Note(5)
-    let barLength = 4;
-    let complexity = 0;
-    Chord.setComplexity(complexity);
-    let [chords,scores] =initChordsFromMelody(inputValues,inputDurations,myKey,barLength);
-    console.log(chords);
-    console.log(scores);
-    let testString = 'Key:' + myKey.toString() + '<br> Hey Jude' +
-        '<br>Complexity:' + complexity +
-        '<br>Bar 0 : ' + chords[0] + 
-        '<br>Bar 1 : ' + chords[1] + 
-        '<br>Bar 2 : ' + chords[2] + 
-        '<br>Bar 3 : ' + chords[3] +
-        '<br>Bar 4 : ' + chords[4];
-
-    document.getElementById("demo").innerHTML = testString;
-}
-*/
-
-/* unused function
-
-function findResolvingPairs(list1, list2) {
-    const resolutions = [];
-
-    list1.forEach(chord1 => {
-        list2.forEach(chord2 => {
-            if (chord1.resolvesTo(chord2)) {
-                resolutions.push({ dominant: chord1, resolution: chord2 });
-            }
-        });
-    });
-
-    return resolutions;
-}
-*/
-
-/* Old function
-
-function recommendChords(notes,allowAvoid=false) {
-    let chords = [];
-
-    function recommendChordsFromEnum(chordEnum, notes) {
-        let recommendedChords = [];
-    
-        Object.keys(chordEnum).forEach(key => {
-            const chord = chordEnum[key];
-            if (chord.allows(notes,allowAvoid)) {
-                recommendedChords.push(chord);
-            }
-        });
-        chords.push(recommendedChords);
-        return recommendedChords;
-    }
-
-    const diatonicChords = recommendChordsFromEnum(Enums.DiatonicChords, notes);
-    const secondaryDominants = recommendChordsFromEnum(Enums.SecondaryDominants, notes);
-    const relatedm7SecondaryDominants = recommendChordsFromEnum(Enums.Relatedm7OfSecondaryDominants, notes);
-    const substituteDominants = recommendChordsFromEnum(Enums.SubstituteDominants, notes);
-    const relatedm7SubstituteDominants = recommendChordsFromEnum(Enums.Relatedm7OfSubstituteDominants, notes);
-
-    return chords;
-}
-
-*/

@@ -1,8 +1,10 @@
-# Melody Harmoniser
+# Harmony Helper
 
-Melody Harmoniser is a tool that suggests possible chords for each bar when a melody is provided. It lets the user input a melody and displays the corresponding chords for each bar, continuously ranked depending upon the preceding chord selections.
+Harmony Helper is a tool that suggests possible chords for each bar when a melody is provided. It lets the user input a melody and displays the corresponding chords for each bar, with the suggestions dynamically changing based on the user's choices.
 
 This enables both advanced and amateur musicians to explore the magic of chords, by inputting any melody of their liking, with an easy to navigate user interface. The only pre-requisite is the knowledge to draw notes on a pianoroll, which is the easiest form of music input.
+
+It is important to mention that the purpose of this tool is not to simply harmonize a melody on its own. The main use for this tool is to add some suggestions that the user might come across. In other words, the user is expected to at least have a very broad idea of how they want to harmonise the melody. This tool will just give the user some new ideas.
 
 ## Implementation
 
@@ -12,11 +14,13 @@ Inputs from the user are:
 * Required complexity of the chords
 * Melody input using a piano roll
 
-Output is an easy-to-read list of chords for each bar, ranked in order of suitability, which dynamically updates based on the user selections.
+
+The output is an easy-to-read list of chords for each bar, ranked in order of suitability, which dynamically updates based on the user selections.
+
 
 ### Piano Roll and MML 
 
-Piano roll is implemented using [webaudio-pianoroll](https://github.com/g200kg/webaudio-pianoroll). webaudio-pianoroll is a GUI library for displaying piano rolls used in music applications. 
+The piano roll is implemented using [webaudio-pianoroll]([https://github.com/g200kg/webaudio-pianoroll), which is a GUI library for displaying piano rolls used in music applications. 
 The output from this pianoroll is by default stored in the form of Music Macro Language (MML). MML is a method of transcribing musical notation as sequence data, which then gets processed into binary performance data, akin to MIDI, for a computer to playback.
 
 MML can be decoded in the following way:
@@ -62,3 +66,126 @@ The notes and octaves are then converted into an integer using the formula
 *notevalue+12(octave+1)*
 
 where notevalue is 0 for c, 1 for d flat and so on, upto 12 for b.
+
+After the input is taken from the piano roll and converted into note values and durations, it is fed into the part of the code that does the calculations for suggesting chords: the Harmonizer.
+
+## The Harmonizer
+
+First, it is important to outline the structures used to represent notes and chords.
+
+### The Note class:
+
+To create a Note object, the Note class takes an integer representing the MIDI value assigned to a note. The MIDI value is stored, and a more generic value is calculated ( MIDI value % 12 )and stored to represent the note. This is the value used later to make most of the calculations.
+
+The Note class has some functions that are specific for note calculations such as transposing notes, and making Note objects from an array of numbers.
+
+An important feature of the note class is being able to return the correct name of a black key depending on the key. For example, in the key of F, the note B♭ would not be represented as A♯. This is done by storing the key as a static variable for the Note class, and the toString function is coded with that in mind.
+
+### The Chord Class:
+
+A chord object does not describe a chord like Fmaj7. It describes the more generic idea of a chord in functional harmony in any key, such as IVmaj7. An easier way to think about it is the input is transposed to the key of C, where all the calculations happens, and then the output is transposed back to the original key.
+
+To create a Chord object the Chord class, the Chord class takes: 
+* A number or a note object as the root
+* A "chord type" which specifies the notes in the chord, relative to the root, as well as the symbol used for the chord
+* The allowed scales for this chord
+
+These are the available chord types
+
+| Type | Symbol |
+| :--: |:--:| 
+|Maj7   | Δ  
+|Maj6   |  6    
+|Maj7s5 |  Δ♯5 
+|Maj7b5 |   Δ♭5
+|dom7    |   7
+|dom7sus4 | 7sus4
+|dom7s5   |  +7 
+|m7      | -7 
+|mMaj7   |  -Δ 
+|m6       | -6 
+|m7b5    |  ø 
+|dim7    |   ° 
+
+These are the available scales:
+* Ionian
+* Dorian
+* Phrygian
+* Lydian
+* Mixolydian
+* Aeolian
+* Locrian
+* Mixolydian ♭9
+* Mixolydian ♭13
+* Mixolydian ♭9♭13
+* Lydian ♭7
+* Whole Tone 
+* Symmetrical Diminished Half-Whole
+* Altered
+* Melodic minor
+* Dorian ♭2
+* Sus4 ♭9 scale
+* Lydian Augmented
+* Locrian ♮9
+* Super Locrian
+
+Each scale is split into 3 categories of notes:
+* chord tones: notes in the chord related to the scale
+* tension notes: notes in the scale that create tension (in a good way) when played with the chord
+* avoid notes: notes in the scale that sound a bit dissonant when played with the chord
+
+These categories are important for suggesting chords.
+
+The chord class also has functions that are specific to chord operations, including converting the chord to a string and, most importantly, the function that calculates a score for each chord based on the melody notes.
+
+Here are all the Chord groups included:
+* Diatonic Chords (chords in the major scale)
+* Secondary Dominant Chords
+* Related m7 Chords of Secondary Dominants
+* Substitute Dominant Chords
+* Related m7 Chords of Substitute Dominants
+* Sub-Dominant Minor Chords
+* Modal Interchange Chords
+* Chords in the Melodic Minor scale
+
+This is already a really long list of chords. Some other chords used in common practice were not added. This is because the conditions under which they are used aren't as generic as these chords. Maybe this could be something that could be added later. (Diminished passing chords, Slash chords, special function dominant chords etc.)
+
+### Chord Score:
+
+A score is calculated to represent how "suitable" each chord is for a certain set of notes. The score is calculated by assigning a certain value between 1 and -1 to each category of notes (chord tones, tension notes, avoid notes, notes out of the scale). These values are different for each level of complexity. A separate score is assigned to the root note as well. The initial score of a chord is the sum of scores for each note in the melody, weighted by their duration. This way, longer notes have more influence shorter notes over which chord is chosen.
+
+Moreover, some bonuses (in the form of extra notes with the score of 1) are added depending on the previous chord, and another bonus if the chord is the Tonic chord in the last bar.
+
+The score calculation is just a way to approximately measure if a chord will sound good with a group of notes. 
+
+### The Harmonizer class
+
+The harmonizer object is where all the processing happens. When the user enters the inputs and presses the "Generate" button, a new harmonizer object is created using all the inputs. The harmonizer splits the melody into bars, removes all the rests, and calculates a score for every chord with every bar. Only chords with a score above a certain threshold are kept, and the chord options for each bar are sorted. The 6 chords with the highest scores for each bar are then converted to strings and displayed on the screen. 
+
+When the user chooses a chord, this chord is stored along with its index (the index is used to change the color of the cells with the chosen chords). The scores for the next bar are then recalculated, based on the user's choice. This will encourage dominant chords to resolve, and adjacent chords to be a fourth or a fifth apart. For example, if the user chooses a G7 chord, all chords in the next bar with C as the root will receive a bonus when the score is recalculated.
+
+The harmonizer class is also where the notes and the chords are played back. When the object is first created, it keeps a version of the original melody, with all the rests, for the playback. In addition, before playing the chords, they have to be split to separate lines, one for each note of the chord. The notes are put into different octaves in this way: 
+
+| Note | Octave |
+|:--:|:--:|
+|root| 2 |
+|fifth| 3 |
+|third| 4 |
+|seventh| 4 |
+
+For example a Cmaj7 chord will be played as: C2 G3 E4 B4
+
+This creates generic open voicings that allow thirds and sevenths to resolve nicely when subsequent chords are a fifth or a semitone apart. These voicings are played with a sine tone, while the melody is played with a triangle wave shape at a louder volume. This is to enable the user to hear the chords separately from the melody.
+
+## The Output
+
+The output is displayed using a canvas. The canvas is drawn using a 2D array of strings. The cell width and height are calculated by dividing the total width and height by the number of columns and the number of cells in the longest column. The harmonizer object stores the indices of the chosen chords, so the corresponding cells could be colored differently. When the user clicks anywhere in the canvas, an function is triggered that find out which cell was clicked using the x and y coordinates of the canvas origin and the click event. The appropriate functions are then called to re calculate the chord scores and redraw the canvas to update the ouput.
+
+
+
+
+
+
+ 
+
+

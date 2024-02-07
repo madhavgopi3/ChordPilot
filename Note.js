@@ -63,9 +63,10 @@ export default class Note {
 
 
     // returns true if the major key that starts on this instance note is represented using sharps
-    // the key of C, Gb/F# will return the default value "true" because C has none and Gb/F# could be 6 flats or sharps
+    // the key of Gb/F# will return the default value "true" because it could be 6 flats or sharps
     startsSharpKey(){
         switch (this.#value) {
+            case 0:                 //C
             case 1:                 //Db
             case 10:                //Bb
             case 3:                 //Eb
@@ -82,16 +83,16 @@ export default class Note {
     getSharpName() {
         switch (this.#value) {
             case 0: return 'C';
-            case 1: return 'C#';
+            case 1: return 'C♯';
             case 2: return 'D';
-            case 3: return 'D#';
+            case 3: return 'D♯';
             case 4: return 'E';
             case 5: return 'F';
-            case 6: return 'F#';
+            case 6: return 'F♯';
             case 7: return 'G';
-            case 8: return 'G#';
+            case 8: return 'G♯';
             case 9: return 'A';
-            case 10: return 'A#';
+            case 10: return 'A♯';
             case 11: return 'B';
             default: return 'Unknown';
         }
@@ -100,16 +101,16 @@ export default class Note {
     getFlatName() {
         switch (this.#value) {
             case 0: return 'C';
-            case 1: return 'Db';
+            case 1: return 'D♭';
             case 2: return 'D';
-            case 3: return 'Eb';
+            case 3: return 'E♭';
             case 4: return 'E';
             case 5: return 'F';
-            case 6: return 'Gb';
+            case 6: return 'G♭';
             case 7: return 'G';
-            case 8: return 'Ab';
+            case 8: return 'A♭';
             case 9: return 'A';
-            case 10: return 'Bb';
+            case 10: return 'B♭';
             case 11: return 'B';
             default: return 'Unknown';
         }
