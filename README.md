@@ -1,5 +1,5 @@
 # ChordPilot
-
+*Created with love by [Madhav](https://github.com/madhavgopi3/) and [Youssef](https://github.com/yshams5/)*
 ## Contents
 
 1. [Introduction](#Introduction)
@@ -37,7 +37,7 @@ The output is an easy-to-read list of chords for each bar, ranked in order of su
 ### Piano Roll and MML 
 
 The piano roll is implemented using [webaudio-pianoroll](https://github.com/g200kg/webaudio-pianoroll), which is a GUI library for displaying piano rolls used in music applications. 
-The output from this pianoroll is by default stored in the form of Music Macro Language (MML). MML is a method of transcribing musical notation as sequence data, which then gets processed into binary performance data, akin to MIDI, for a computer to playback.
+The output from this pianoroll is by default stored in the form of Music Macro Language (MML). MML is a method of transcribing musical notation as sequence data, which then gets processed into binary performance data, akin to MIDI, for a computer to playback. The pianoroll is scrollable by clicking and dragging on the axes. Alternatively, the time axis is also scrollable with the mousewheel.
 
 MML can be decoded in the following way:
 
