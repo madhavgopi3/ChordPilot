@@ -8,6 +8,8 @@ While the tool is capable of harmonising a melody on its own, the main use for t
 
 Watch the demo [here](https://youtu.be/aiTrYkY2TBU)
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/aiTrYkY2TBU?si=GTyK_eMRZsbDVsQL" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ## Implementation
 
 Inputs from the user are:
