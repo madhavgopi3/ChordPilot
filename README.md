@@ -2,10 +2,10 @@
 
 ## Contents
 
-[Introduction](#Introduction)
-[Implementation](#Implementation)
-[Piano Roll and MML](#Piano-Roll-and-MML)
-[The Harmonizer](#The-Harmonizer)
+1. [Introduction](#Introduction)
+2. [Implementation](#Implementation)
+3. [Piano Roll and MML](#Piano-Roll-and-MML)
+4. [The Harmonizer](#The-Harmonizer)
 
 
 ## Introduction
