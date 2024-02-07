@@ -1,5 +1,7 @@
 # ChordPilot
 
+[Implementation](#Implementation)
+
 ChordPilot is a tool that suggests possible chords for each bar when a melody is provided. It lets the user input a melody and displays the corresponding chords for each bar, with the suggestions dynamically changing based on the user's choices.
 
 This enables both advanced and amateur musicians to explore the magic of chords, by inputting any melody of their liking, with an easy to navigate user interface. The only pre-requisite is the knowledge to draw notes on a pianoroll, which is the easiest form of music input.
