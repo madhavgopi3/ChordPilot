@@ -125,9 +125,14 @@ function generateClick()
   nroValues = parseDuration();
   nrDurations = parseValues();
   noteinteger = notesToInteger();
+  console.log("Notes/Rests/Octaves: " + nroNames);
+  console.log("Note/Rests/Octave Values: " +nroValues);
+  console.log("Note/Rests: " + nrNames);
+  console.log("Note/Rests Duration: " + nrDurations);
+  console.log("Integer value of the Notes/Rests: " +noteinteger);
   // nroNameDisplay.textContent = "Notes/Rests/Octaves: " + nroNames;
   // nroDurationDisplay.textContent = "Note/Rests/Octave Values: " +nroValues;
-  // nrNameDisplay.textContent = "Note/Rests names: " + nrNames;
+  // nrNameDisplay.textContent = "Note/Rests: " + nrNames;
   // nrDurationDisplay.textContent = "Note/Rests Duration: " + nrDurations;
   // nrIntegerDisplay.textContent = "Integer value of the Notes/Rests: " +noteinteger;
   
