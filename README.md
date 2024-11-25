@@ -1,5 +1,8 @@
 # ChordPilot
 *Created with love by [Madhav](https://github.com/madhavgopi3/) and [Youssef](https://github.com/yshams5/)*
+
+Deployed [here](https://madhavgopi3.github.io/ChordPilot/)
+
 ## Contents
 
 1. [Introduction](#Introduction)
